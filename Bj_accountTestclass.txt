@@ -1,0 +1,95 @@
+@IsTest
+public class BJ_UpdateChildAccountBatchTest {
+
+    
+   public static testmethod void testBatchExecution() {
+        // Create test data - adjust as needed
+        String Rid = [select id from RecordType where SobjectType = 'Account' and Name = 'MHE PK-12'].Id;  
+        ID PID = [select id,Name from profile where Name = 'System Administrator'].Id;
+        // Need to create user with name interface informatica so that it does not clear Oracle fields...
+        User u1 = new User(alias = 'TestUser', email='TestUser1234567@testxyz.com', emailencodingkey='UTF-8', lastname='Migration',firstname = 'Data',languagelocalekey='en_US', localesidkey='en_US', profileid = PID,timezonesidkey='America/Los_Angeles', username='TestUser_SEGTSA@test.com',MHE_Division__c = 'MHHE',IsActive = true,Department='Test');
+        Insert u1;
+        Address__c add1, add2, add3, add4;
+         system.runAs(u1){
+             List<MHHE_Dummy_Accounts__c> lstdivnA1 = new List<MHHE_Dummy_Accounts__c>();        
+            
+            MHHE_Dummy_Accounts__c custDivA1 = new MHHE_Dummy_Accounts__c();
+            custDivA1.Name = 'MHE CMDB Dummy Account';
+            custDivA1.Account_Name__c= '001C000001Ao2r9';
+            lstdivnA1.add(custDivA1); 
+            MHHE_Dummy_Accounts__c custDivB1 = new MHHE_Dummy_Accounts__c(); 
+            custDivB1.Name = 'MHHE Inactive Contact';
+            custDivB1.Account_Name__c= '0018000000cNLeiAAG';
+            lstdivnA1.add(custDivB1); 
+            MHHE_Dummy_Accounts__c custDivC1 = new MHHE_Dummy_Accounts__c(); 
+            custDivC1.Name = 'Global Employee Resource Center';
+            custDivC1.Account_Name__c= '001C0000012bZFo';
+            lstdivnA1.add(custDivC1); 
+            MHHE_Dummy_Accounts__c custDivD1 = new MHHE_Dummy_Accounts__c(); 
+            custDivD1.Name = 'MHHE Product McGraw Hill Account';
+            custDivD1.Account_Name__c= '001C0000019x7jXIAQ';
+            lstdivnA1.add(custDivD1);            
+            insert lstdivnA1;
+        //To create All_Users__c custom setting data
+            List<All_Users__c> auListA = new List<All_Users__c>();
+            All_Users__c au = new All_Users__c(Name = u1.id,MHE_Division__c = u1.MHE_Division__c,Profile_Name__c = 'System Administrator',Hold_Sample__c = u1.Hold_Sample__c);
+            auListA.add(au);
+            insert auListA;
+            
+            //To create All_Divisions__c custom setting data
+            List<All_Divisions__c> lstdivnA = new List<All_Divisions__c>();        
+            
+            All_Divisions__c custDivA = new All_Divisions__c();
+            custDivA.Name = 'MHHE';
+            custDivA.Division_ID__c = '02d800000008P5G';
+            lstdivnA.add(custDivA);  
+            
+            All_Divisions__c custDivB = new All_Divisions__c();
+            custDivB.Name = 'MHP';
+            custDivB.Division_ID__c = '02d800000008P5Q';
+            lstdivnA.add(custDivB);  
+            
+            All_Divisions__c custDivC = new All_Divisions__c();
+            custDivC.Name = 'SEG';
+            custDivC.Division_ID__c = '02d800000008P5L';
+            lstdivnA.add(custDivC);  
+            
+            All_Divisions__c custDivD = new All_Divisions__c();
+            custDivD.Name = 'MHE';
+            custDivD.Division_ID__c = '02d800000004CzB';
+            lstdivnA.add(custDivD);        
+            
+            insert lstdivnA;
+             //To create All_Trigger_Bypass__c custom setting data
+            All_Trigger_Bypass__c TrigPass = new All_Trigger_Bypass__c();
+            TrigPass.Skip_Validation__c = false;
+            Insert TrigPass;
+        
+        Account acc1 = new Account(Name='test Account 1', Account_Status__c = 'Active', BILLINGSTREET='Test Street', BILLINGCITY='New York',Account_Class__c='Career Education',BILLINGSTATE='NY', BILLINGPOSTALCODE='13456', BILLINGCOUNTRY='US', SHIPPINGSTREET='Test Street', SHIPPINGCITY='New York', SHIPPINGSTATE='NY', SHIPPINGPOSTALCODE='13456', SHIPPINGCOUNTRY='US',Oracle_Class__c ='CA-DISTRIBUTORS',Oracle_Account_Number__c = 'tstu221166',RecordTypeId = Rid,Partial_Integration__c = false,District_Support_Contact_Phone_Email__c='222');
+        insert acc1;
+        Account acc2 = new Account(Name='test Account 2', Account_Status__c = 'Active', ParentId = acc1.Id, BILLINGSTREET='Test Street 2', BILLINGCITY='New York 2',Account_Class__c='Career Education',BILLINGSTATE='NY', BILLINGPOSTALCODE='13456', BILLINGCOUNTRY='US', SHIPPINGSTREET='Test Street', SHIPPINGCITY='New York', SHIPPINGSTATE='NY', SHIPPINGPOSTALCODE='13456', SHIPPINGCOUNTRY='US',Oracle_Class__c ='CA-DISTRIBUTORS',Oracle_Account_Number__c = 'tstu2211678',RecordTypeId = Rid,Partial_Integration__c = false);
+        insert acc2;
+        Account acc3 = new Account(Name='test Account 3', Account_Status__c = 'Active', ParentId = acc2.Id, BILLINGSTREET='Test Street 2', BILLINGCITY='New York 3',Account_Class__c='Career Education',BILLINGSTATE='NY', BILLINGPOSTALCODE='13456', BILLINGCOUNTRY='US', SHIPPINGSTREET='Test Street', SHIPPINGCITY='New York', SHIPPINGSTATE='NY', SHIPPINGPOSTALCODE='13456', SHIPPINGCOUNTRY='US',Oracle_Class__c ='CA-DISTRIBUTORS',Oracle_Account_Number__c = 'tstu22113678',RecordTypeId = Rid,Partial_Integration__c = false,District_Support_Contact_Phone_Email__c='2222');
+        insert acc3;
+             
+         
+             add1 = new Address__c(Name = 'Test1', ERP_Primary_Shipping__c = true, Primary_Shipping__c= false, Account__c = acc1.Id, Postalcode__c = '123456', street1__c = 'Street1', Oracle_Account_Number__c = 'tstu221166');
+            Insert add1;
+        add2 = new Address__c(Name = 'Test2', ERP_Primary_Shipping__c = false, Primary_shipping__c=false,Account__c = acc1.Id, Postalcode__c = '123456', street1__c = 'Street1',Oracle_Account_Number__c = 'tstu221166');
+            Insert add2;
+        
+        add3 = new Address__c(Name = 'Test1', ERP_Primary_Shipping__c = true, Primary_Shipping__c= false, Account__c = acc2.Id, Postalcode__c = '123456', street1__c = 'Street1',Oracle_Account_Number__c = 'tstu221166');
+            Insert add3;
+        add4 = new Address__c(Name = 'Test2', ERP_Primary_Shipping__c = false, Primary_shipping__c=true,Account__c = acc2.Id, Postalcode__c = '123456', street1__c = 'Street1',Oracle_Account_Number__c = 'tstu221166');
+            Insert add4;
+       
+             test.startTest();
+        BJ_UpdateChildAccountBatch batchClass = new BJ_UpdateChildAccountBatch();
+        Database.executeBatch(batchClass);
+        Test.stopTest();
+
+        // Verify the results
+      //  List<Account> updatedChildAccounts = [SELECT Id, District_Support_Contact_Phone_Email__c, Responsible_Party__c, Rostering_Advisor__c FROM Account WHERE Id = :childAccount.Id];
+         }
+    }
+}
