@@ -3,7 +3,7 @@ public class BJ_UpdateChildAccountBatchTest {
 
     
    public static testmethod void testBatchExecution() {
-        // Create test data - adjust as needed
+        // Create test data - adjust as needed Test
         String Rid = [select id from RecordType where SobjectType = 'Account' and Name = 'MHE PK-12'].Id;  
         ID PID = [select id,Name from profile where Name = 'System Administrator'].Id;
         // Need to create user with name interface informatica so that it does not clear Oracle fields...
